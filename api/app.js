@@ -5,6 +5,7 @@ const BTC_ADDRESS = "15LXQpFN8pFXv8LQ9nC7ZUqfC7Ycoedwvt"; // your deposit addres
 const MIN_USD = 5;               // smallest payment (network fees make tiny on-chain payments impractical)
 const BRAND_NAME = "YOUR BRAND"; // shown in the dashboard
 const BRAND_SUB = "BITCOIN PAY";
+const DB_PREFIX = "btc:";        // keeps this site's data separate if it shares a Redis database with another site
 // ==========================
 
 const U = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -13,7 +14,7 @@ const PW = process.env.ADMIN_PASSWORD || "";
 const SEC = process.env.SESSION_SECRET || PW;
 
 async function db(cmd) {
-  const r = await fetch(U, { method: "POST", headers: { Authorization: "Bearer " + T }, body: JSON.stringify(cmd) });
+  const r = await fetch(U, { method: "POST", headers: { Authorization: "Bearer " + T }, body: JSON.stringify([cmd[0], DB_PREFIX + cmd[1], ...cmd.slice(2)]) });
   const j = await r.json();
   if (j.error) throw new Error(j.error);
   return j.result;
